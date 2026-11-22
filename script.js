@@ -165,6 +165,85 @@ document.querySelectorAll('dialog.modal').forEach(modal => {
     modal.addEventListener('close', () => document.body.classList.remove('sem-rolagem'));
 });
 
+// ----- Animações -----
+window.animacoesAtivas = true;
+const reduzirMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const esperar = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+// "Olá, eu sou" é digitado letra por letra; depois o nome aparece
+async function animarApresentacao() {
+    const hero = document.querySelector('.hero');
+    const saudacao = hero.querySelector('.saudacao');
+    const texto = saudacao.textContent.trim();
+
+    if (reduzirMovimento) {
+        hero.classList.add('digitando', 'nome-visivel');
+        return;
+    }
+
+    // Leitores de tela leem o texto inteiro; a digitação é só visual
+    const leitor = criarElemento('span', 'sr-only', texto);
+    const digitado = criarElemento('span');
+    const cursor = criarElemento('span', 'cursor');
+    digitado.setAttribute('aria-hidden', 'true');
+    cursor.setAttribute('aria-hidden', 'true');
+    saudacao.replaceChildren(leitor, digitado, cursor);
+
+    await esperar(450);
+    hero.classList.add('digitando');
+    for (const letra of texto) {
+        digitado.textContent += letra;
+        await esperar(letra === ',' ? 200 : 65);
+    }
+
+    await esperar(250);
+    const nome = hero.querySelector('.nome');
+    nome.addEventListener('animationend', evento => {
+        if (evento.target === nome) nome.classList.add('pronto');
+    });
+    hero.classList.add('nome-visivel');
+    await esperar(2200);
+    cursor.classList.add('fim');
+}
+
+// Seções aparecem suavemente quando entram na tela
+function revelarAoRolar() {
+    const grupos = [
+        '.secao .eyebrow:not(.saudacao)',
+        '.titulo-secao',
+        '.subtitulo',
+        '.destaque-mini',
+        '.equipe-card',
+        '.sobre-texto',
+        '.destaques',
+        '.skill-grupo',
+        '.carrossel',
+        '.contato p',
+        '.contato .acoes',
+    ];
+    const elementos = document.querySelectorAll(grupos.join(','));
+    if (reduzirMovimento || !('IntersectionObserver' in window)) return;
+
+    const observador = new IntersectionObserver(entradas => {
+        entradas.forEach(entrada => {
+            if (!entrada.isIntersecting) return;
+            entrada.target.classList.add('visivel');
+            observador.unobserve(entrada.target);
+        });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    elementos.forEach(el => {
+        // Itens lado a lado (ex.: cards de habilidades) entram um depois do outro
+        const irmaos = [...el.parentElement.children].filter(irmao => irmao.matches(grupos.join(',')));
+        const posicao = irmaos.indexOf(el);
+        if (posicao > 0) el.style.transitionDelay = `${posicao * 110}ms`;
+        el.classList.add('revelar');
+        observador.observe(el);
+    });
+}
+
 document.getElementById('ano').textContent = new Date().getFullYear();
 atualizarCarrossel();
 carregarProjetos();
+animarApresentacao();
+revelarAoRolar();

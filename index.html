@@ -13,7 +13,17 @@
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="icon" type="image/png" href="img/icon-192.png" sizes="192x192">
     <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&display=swap">
     <link rel="stylesheet" href="style.css">
+    <script>
+        // Ativa as animações de entrada. Se o script.js não carregar em 2,5 s, mostra tudo sem animação.
+        document.documentElement.classList.add('js');
+        setTimeout(function () {
+            if (!window.animacoesAtivas) document.documentElement.classList.remove('js');
+        }, 2500);
+    </script>
 </head>
 <body>
     <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -35,14 +45,14 @@
         <!-- Hero -->
         <section id="inicio" class="hero container">
             <div class="hero-texto">
-                <p class="eyebrow">Olá, eu sou</p>
-                <h1>Leandro Santana Martins</h1>
-                <p class="cargo">Desenvolvedor Flutter &middot; Estudante de Sistemas de Informação (IFBA)</p>
-                <p class="resumo">
+                <p class="eyebrow saudacao">Olá, eu sou</p>
+                <h1 class="nome">Leandro Santana Martins<span class="ponto" aria-hidden="true">.</span></h1>
+                <p class="cargo entrada">Desenvolvedor Flutter &middot; Estudante de Sistemas de Informação (IFBA)</p>
+                <p class="resumo entrada">
                     Crio aplicativos multiplataforma com Flutter, Dart e Firebase. Meu principal projeto é o
                     <a href="#destaque">ControlFin</a>, um app completo de finanças pessoais para Android e Web.
                 </p>
-                <div class="acoes">
+                <div class="acoes entrada">
                     <a href="#destaque" class="btn btn-primario">Conhecer o ControlFin</a>
                     <a href="https://github.com/Leddro" class="btn btn-secundario" target="_blank" rel="noopener noreferrer">
                         <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
