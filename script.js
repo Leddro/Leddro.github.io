@@ -92,10 +92,79 @@ async function carregarProjetos() {
         if (ativos.length === 0) return;
 
         lista.replaceChildren(...ativos.map(criarCard));
+        lista.scrollLeft = 0;
     } catch (erro) {
         console.warn('Mantendo a lista estática de projetos.', erro);
+    } finally {
+        atualizarCarrossel();
     }
 }
 
+// ----- Carrossel de projetos -----
+const trilha = document.getElementById('lista-projetos');
+const setaAnterior = document.querySelector('.carrossel-seta.anterior');
+const setaProxima = document.querySelector('.carrossel-seta.proxima');
+const pontos = document.querySelector('.carrossel-pontos');
+
+function passoCarrossel() {
+    const card = trilha.querySelector('.card');
+    if (!card) return trilha.clientWidth;
+    const gap = parseFloat(getComputedStyle(trilha).columnGap) || 0;
+    return card.offsetWidth + gap;
+}
+
+function paginasCarrossel() {
+    const visiveis = Math.max(1, Math.round(trilha.clientWidth / passoCarrossel()));
+    const total = trilha.querySelectorAll('.card').length;
+    return Math.max(1, total - visiveis + 1);
+}
+
+function atualizarCarrossel() {
+    const max = trilha.scrollWidth - trilha.clientWidth;
+    setaAnterior.disabled = trilha.scrollLeft <= 2;
+    setaProxima.disabled = trilha.scrollLeft >= max - 2;
+
+    const total = max > 2 ? paginasCarrossel() : 1;
+    const atual = Math.min(total - 1, Math.round(trilha.scrollLeft / passoCarrossel()));
+    if (pontos.children.length !== total) {
+        pontos.replaceChildren(...Array.from({ length: total }, () => criarElemento('span')));
+    }
+    [...pontos.children].forEach((ponto, i) => ponto.classList.toggle('ativo', i === atual));
+    pontos.hidden = total <= 1;
+}
+
+document.querySelectorAll('.carrossel-seta').forEach(seta => {
+    seta.addEventListener('click', () => {
+        trilha.scrollBy({ left: Number(seta.dataset.direcao) * passoCarrossel(), behavior: 'smooth' });
+    });
+});
+
+trilha.addEventListener('keydown', evento => {
+    if (evento.key === 'ArrowRight') setaProxima.click();
+    if (evento.key === 'ArrowLeft') setaAnterior.click();
+});
+
+trilha.addEventListener('scroll', atualizarCarrossel, { passive: true });
+window.addEventListener('resize', atualizarCarrossel);
+
+// ----- Janela de detalhes do projeto em destaque -----
+document.querySelectorAll('[data-abrir]').forEach(botao => {
+    const modal = document.getElementById(botao.dataset.abrir);
+    botao.addEventListener('click', () => {
+        modal.showModal();
+        document.body.classList.add('sem-rolagem');
+    });
+});
+
+document.querySelectorAll('dialog.modal').forEach(modal => {
+    modal.querySelector('[data-fechar]').addEventListener('click', () => modal.close());
+    // Fecha ao clicar fora do conteúdo
+    modal.addEventListener('click', evento => {
+        if (evento.target === modal) modal.close();
+    });
+    modal.addEventListener('close', () => document.body.classList.remove('sem-rolagem'));
+});
+
 document.getElementById('ano').textContent = new Date().getFullYear();
+atualizarCarrossel();
 carregarProjetos();
