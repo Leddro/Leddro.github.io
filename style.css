@@ -10,6 +10,9 @@
     --sombra: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
     --raio: 14px;
     --largura: 1040px;
+    --ciano: #0891b2;
+    --fonte-titulo: "Sora", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --grad-nome: linear-gradient(120deg, #0f172a 15%, #1d4ed8 60%, #0891b2 100%);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,6 +26,8 @@
         --primaria-hover: #93c5fd;
         --primaria-suave: #1e3a5f;
         --sombra: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+        --ciano: #38bdf8;
+        --grad-nome: linear-gradient(120deg, #f8fafc 10%, #bfdbfe 45%, #60a5fa 75%, #38bdf8 100%);
     }
 }
 
@@ -72,6 +77,20 @@ a:hover {
     max-width: var(--largura);
     margin: 0 auto;
     padding: 0 24px;
+}
+
+h1,
+h2 {
+    font-family: var(--fonte-titulo);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
 }
 
 .skip-link {
@@ -150,11 +169,46 @@ a:hover {
     margin: 0 0 8px;
 }
 
-.hero h1 {
-    font-size: clamp(2.2rem, 5vw, 3.4rem);
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-    margin: 0 0 16px;
+.saudacao {
+    font-size: 1.05rem;
+    min-height: 1.65em;
+}
+
+.cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    margin-left: 3px;
+    vertical-align: -0.15em;
+    background: var(--primaria);
+    animation: piscar 0.9s steps(1) infinite;
+    transition: opacity 0.4s;
+}
+
+.cursor.fim {
+    animation: none;
+    opacity: 0;
+}
+
+/* Nome: fonte Sora com degradê nas cores do site e ponto azul igual ao do logo */
+.nome {
+    font-size: clamp(2.3rem, 5.4vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    margin: 0 0 18px;
+    padding-bottom: 0.06em;
+    background: var(--grad-nome);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+.nome .ponto {
+    display: inline-block;
+    color: var(--primaria);
+    -webkit-text-fill-color: var(--primaria);
 }
 
 .cargo {
@@ -173,6 +227,28 @@ a:hover {
 
 .hero-foto {
     justify-self: center;
+    position: relative;
+    border-radius: 50%;
+    isolation: isolate;
+}
+
+/* Anel em degradê girando devagar em volta da foto, com um brilho suave */
+.hero-foto::before,
+.hero-foto::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--primaria), var(--ciano), transparent 45%, var(--primaria) 75%, var(--primaria));
+    animation: girar 10s linear infinite;
+    z-index: -1;
+}
+
+.hero-foto::after {
+    inset: 8px;
+    filter: blur(28px);
+    opacity: 0.45;
+    z-index: -2;
 }
 
 .hero-foto img {
@@ -180,8 +256,149 @@ a:hover {
     height: 320px;
     object-fit: cover;
     border-radius: 50%;
-    border: 6px solid var(--bg-alt);
-    box-shadow: var(--sombra), 0 0 0 1px var(--borda);
+    border: 6px solid var(--bg);
+}
+
+/* ----- Animações de entrada (só com JavaScript ativo) ----- */
+.js .topbar {
+    animation: descer 0.6s ease-out both;
+}
+
+.js .hero-foto {
+    animation: foto-entrar 1s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.js .saudacao {
+    visibility: hidden;
+}
+
+.js .hero.digitando .saudacao {
+    visibility: visible;
+}
+
+.js .nome,
+.js .nome .ponto,
+.js .entrada {
+    opacity: 0;
+}
+
+.hero.nome-visivel .nome {
+    animation: revelar-nome 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+.hero.nome-visivel .nome .ponto {
+    animation: ponto-pop 0.55s 1s cubic-bezier(0.3, 1.6, 0.5, 1) forwards;
+}
+
+.hero.nome-visivel .entrada {
+    animation: subir 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+.hero.nome-visivel .cargo {
+    animation-delay: 0.65s;
+}
+
+.hero.nome-visivel .resumo {
+    animation-delay: 0.8s;
+}
+
+.hero.nome-visivel .acoes {
+    animation-delay: 0.95s;
+}
+
+/* Seções aparecem ao rolar a página */
+.revelar {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.revelar.visivel {
+    opacity: 1;
+    transform: none;
+}
+
+@keyframes piscar {
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes girar {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes descer {
+    from {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
+
+@keyframes foto-entrar {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+        filter: blur(8px);
+    }
+}
+
+@keyframes revelar-nome {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+        filter: blur(10px);
+        -webkit-mask-position: 100% 0;
+        mask-position: 100% 0;
+    }
+    to {
+        opacity: 1;
+        transform: none;
+        filter: blur(0);
+        -webkit-mask-position: 0 0;
+        mask-position: 0 0;
+    }
+}
+
+.hero.nome-visivel .nome {
+    -webkit-mask-image: linear-gradient(90deg, #000 45%, transparent 55%);
+    mask-image: linear-gradient(90deg, #000 45%, transparent 55%);
+    -webkit-mask-size: 220% 100%;
+    mask-size: 220% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+}
+
+/* Depois da animação, remove máscara e desfoque (evita o texto em degradê sumir em alguns navegadores) */
+.js .hero.nome-visivel .nome.pronto {
+    animation: none;
+    opacity: 1;
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+@keyframes ponto-pop {
+    from {
+        opacity: 0;
+        transform: scale(0) translateY(-0.4em);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes subir {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 /* Botões */
@@ -927,7 +1144,8 @@ code {
 
 @media (max-width: 560px) {
     .container {
-        padding: 0 16px;
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .nav-links {
@@ -1020,7 +1238,26 @@ code {
         scroll-behavior: auto;
     }
 
-    * {
+    *,
+    *::before,
+    *::after {
         transition: none !important;
+        animation: none !important;
+    }
+
+    .js .saudacao {
+        visibility: visible;
+    }
+
+    .js .nome,
+    .js .nome .ponto,
+    .js .entrada,
+    .revelar {
+        opacity: 1;
+        transform: none;
+    }
+
+    .cursor {
+        display: none;
     }
 }
